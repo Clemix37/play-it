@@ -62,15 +62,9 @@ io.on('connection', async (socket) => {
     // Join a conversation
     const { roomId, roomPlayerId } = socket.handshake.query;
     socket.join(roomId);
-    console.log(roomId, roomPlayerId);
     const roomPlayer = await RoomPlayer.findById(roomPlayerId);
 
     io.in(roomId).emit(NEW_USER_EVT, {sender: socket.id, roomPlayer, roomId});
-
-    // Listen for new user
-    // socket.on(NEW_USER_EVT, (data) => {
-    //   console.log(data);
-    // });
 
     // Listen for deleted room
     socket.on(ROOM_DELETED_EVT, (data) => {
