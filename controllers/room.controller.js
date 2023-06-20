@@ -16,8 +16,9 @@ module.exports.joinRoom = async (req, res) => {
     try {
         const {username,code} = req.body;
         let room = await Room.find({code});
-        const roomPlayer = await RoomPlayer.create({username,points:0,estAdmin:false,});
         if(room.length > 0) room = room[0];
+        else res.status(201).json({success:false});
+        const roomPlayer = await RoomPlayer.create({roomId: room._id, username,points:0,estAdmin:false,});
         res.status(201).json({room,roomPlayer,success:true});
     } catch (err) {
         gererErreurs(err, "joinRoom", "room.controller");

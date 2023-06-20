@@ -9,7 +9,7 @@ function Room({socketRef, player,setPlayer,room,setRoom}){
 
     useEffect(() => {
         if(uid !== room.uid) return navigate('/500');
-    }, [room.uid, uid, navigate]);
+    }, [players, room.uid, uid, navigate]);
 
     return (
         <>

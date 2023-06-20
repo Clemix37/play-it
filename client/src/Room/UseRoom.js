@@ -20,7 +20,7 @@ function UseRoom(socketRef, roomId, roomPlayer){
             });
         }
 
-        const query = {query: { roomId: roomId, roomPlayerId:roomPlayer._id }};
+        const query = {query: { roomId, roomPlayerId:roomPlayer._id }};
         socketRef.current = connecterSocket(query);
         // socketRef.current.emit(SOCKET_EVTS.NEW_USER_EVT, {
         //     body: {roomId,roomPlayerId:roomPlayer._id},
