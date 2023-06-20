@@ -52,9 +52,12 @@ app.listen(PORT, ()=>{
 app.use(roomRoutes);
 
 // SOCKETS
-const NEW_USER_EVT = "newUser";
-const ROOM_DELETED_EVT = "roomDeleted";
-const USER_DISCONNECT = "userDisconnected";
+const SOCKET_EVTS = {
+    NEW_USER_EVT: "newUser",
+    USER_DISCONNECT: "userDisconnected",
+    ROOM_DELETED_EVT: "roomDeleted",
+    SOCKET_SERVER_URL: "http://localhost:4000",
+};
 io.on('connection', async (socket) => {
     //console.log(socket);
     console.log(`Client ${socket.id} connected`);
@@ -64,21 +67,21 @@ io.on('connection', async (socket) => {
     socket.join(roomId);
     const roomPlayer = await RoomPlayer.findById(roomPlayerId);
 
-    io.in(roomId).emit(NEW_USER_EVT, {sender: socket.id, roomPlayer, roomId});
+    io.in(roomId).emit(SOCKET_EVTS.NEW_USER_EVT, {sender: socket.id, roomPlayer, roomId});
 
     // Listen for deleted room
-    socket.on(ROOM_DELETED_EVT, (data) => {
-      io.in(roomId).emit(ROOM_DELETED_EVT, data);
+    socket.on(SOCKET_EVTS.ROOM_DELETED_EVT, (data) => {
+      io.in(roomId).emit(SOCKET_EVTS.ROOM_DELETED_EVT, data);
     });
   
     // Leave the room if the user closes the socket
     socket.on("disconnect", async () => {
       if(roomPlayer?.estAdmin) {
         await deleteRoom(roomId);
-        io.in(roomId).emit(ROOM_DELETED_EVT);
+        io.in(roomId).emit(SOCKET_EVTS.ROOM_DELETED_EVT);
       }else{
         const userId = roomPlayer._id;
-        io.in(roomId).emit(USER_DISCONNECT, {userId});
+        io.in(roomId).emit(SOCKET_EVTS.USER_DISCONNECT, {userId});
         await RoomPlayer.findOneAndDelete(userId);
       }
       console.log(`Client ${socket.id} diconnected`);

@@ -13,6 +13,10 @@ const RoomSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    gameStarted: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 const Room = mongoose.model("Room", RoomSchema);

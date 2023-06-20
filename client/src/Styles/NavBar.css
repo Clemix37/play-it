@@ -1,0 +1,10 @@
+.navbar {
+    background-color: #dcdcdc;
+}
+
+a {
+    text-decoration: none;
+}
+a:active {
+    color: black;
+}
