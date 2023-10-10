@@ -57,6 +57,8 @@ const SOCKET_EVTS = {
     USER_DISCONNECT: "userDisconnected",
     ROOM_DELETED_EVT: "roomDeleted",
     SOCKET_SERVER_URL: "http://localhost:4000",
+    SHOWING_SCORE: "showingScore",
+    PLAYING: "playing",
 };
 io.on('connection', async (socket) => {
     //console.log(socket);
@@ -73,6 +75,14 @@ io.on('connection', async (socket) => {
     socket.on(SOCKET_EVTS.ROOM_DELETED_EVT, (data) => {
       io.in(roomId).emit(SOCKET_EVTS.ROOM_DELETED_EVT, data);
     });
+
+    socket.on(SOCKET_EVTS.SHOWING_SCORE, (data) => {
+      io.in(roomId).emit(SOCKET_EVTS.SHOWING_SCORE, data);
+    });
+
+    socket.on(SOCKET_EVTS.PLAYING, (data) => {
+      io.in(roomId).emit(SOCKET_EVTS.PLAYING, data);
+    });
   
     // Leave the room if the user closes the socket
     socket.on("disconnect", async () => {
@@ -80,9 +90,9 @@ io.on('connection', async (socket) => {
         await deleteRoom(roomId);
         io.in(roomId).emit(SOCKET_EVTS.ROOM_DELETED_EVT);
       }else{
-        const userId = roomPlayer._id;
+        const userId = roomPlayer?._id ?? null;
         io.in(roomId).emit(SOCKET_EVTS.USER_DISCONNECT, {userId});
-        await RoomPlayer.findOneAndDelete(userId);
+        if(userId) await RoomPlayer.findOneAndDelete(userId);
       }
       console.log(`Client ${socket.id} diconnected`);
       socket.leave(roomId);

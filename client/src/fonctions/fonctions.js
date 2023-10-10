@@ -3,6 +3,8 @@ const SOCKET_EVTS = {
     USER_DISCONNECT: "userDisconnected",
     ROOM_DELETED_EVT: "roomDeleted",
     SOCKET_SERVER_URL: "http://localhost:4000",
+    SHOWING_SCORE: "showingScore",
+    PLAYING: "playing",
 };
 
 const getApi = (controller = null, lien) => {

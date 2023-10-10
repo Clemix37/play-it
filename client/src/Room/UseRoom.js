@@ -5,6 +5,8 @@ import { connecterSocket } from "../socket";
 
 function UseRoom(socketRef, roomId, roomPlayer){
     const [players, setPlayers] = useState([]);
+    const [gameStarted, setGameStarted] = useState(false);
+    const [showingScore, setShowingScore] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,16 +24,8 @@ function UseRoom(socketRef, roomId, roomPlayer){
 
         const query = {query: { roomId, roomPlayerId:roomPlayer._id }};
         socketRef.current = connecterSocket(query);
-        // socketRef.current.emit(SOCKET_EVTS.NEW_USER_EVT, {
-        //     body: {roomId,roomPlayerId:roomPlayer._id},
-        //     senderId: socketRef.current.id,
-        // });
 
         socketRef?.current?.on(SOCKET_EVTS.NEW_USER_EVT, (message) => {
-            // const incomingMessage = {
-            //     ...message.body,
-            //     ownedByCurrentUser: message.senderId === socketRef.current.id,
-            // };
             const ownedByCurrentUser = socketRef.current.id === message.sender;
             console.log(message, ownedByCurrentUser);
             // Pas de messages pour l'utilisateur en cours
@@ -40,10 +34,6 @@ function UseRoom(socketRef, roomId, roomPlayer){
         });
 
         socketRef?.current?.on(SOCKET_EVTS.USER_DISCONNECT, (message) => {
-            // const incomingMessage = {
-            //     ...message.body,
-            //     ownedByCurrentUser: message.senderId === socketRef.current.id,
-            // };
             const ownedByCurrentUser = socketRef.current.id === message.sender;
             recupPlayers();
             console.log(message, ownedByCurrentUser);
@@ -51,7 +41,18 @@ function UseRoom(socketRef, roomId, roomPlayer){
 
         // Au cas où l'Admin supprime la room
         socketRef?.current?.on(SOCKET_EVTS.ROOM_DELETED_EVT, () => {
+            setShowingScore(false);
             retournerErreur500();
+        });
+
+        socketRef?.current?.on(SOCKET_EVTS.SHOWING_SCORE, () => {
+            // SHOW SCORE
+            setShowingScore(true);
+        });
+
+        socketRef?.current?.on(SOCKET_EVTS.PLAYING, () => {
+            // Game has started
+            setGameStarted(true);
         });
 
         return () => {
@@ -59,7 +60,15 @@ function UseRoom(socketRef, roomId, roomPlayer){
         };
     }, [socketRef, navigate, roomId, roomPlayer]);
 
-    return {players};
+    const showScore = () => {
+        socketRef?.current?.emit(SOCKET_EVTS.SHOWING_SCORE);
+    };
+
+    const play = () => {
+        socketRef?.current?.emit(SOCKET_EVTS.PLAYING);
+    };
+
+    return {players, showScore, showingScore, play, gameStarted};
 }
 
 export default UseRoom;
