@@ -7,6 +7,9 @@ function UseRoom(socketRef, roomId, roomPlayer){
     const [players, setPlayers] = useState([]);
     const [gameStarted, setGameStarted] = useState(false);
     const [showingScore, setShowingScore] = useState(false);
+    const [userAnswered, setUserAnswered] = useState(false);
+    const [question, setQuestion] = useState(null);
+    const [possibleAnswers, setPossibleAnswers] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -55,6 +58,25 @@ function UseRoom(socketRef, roomId, roomPlayer){
             setGameStarted(true);
         });
 
+        //#region QUIZ
+
+        socketRef?.current?.on(SOCKET_EVTS.QUIZ.NEW_QUESTION, (data) => {
+            setUserAnswered(false);
+            setQuestion(data.question);
+            setPossibleAnswers(data.answers);
+            console.log("new question");
+        });
+        
+        socketRef?.current?.on(SOCKET_EVTS.QUIZ.NEW_ANSWER, () => {
+            console.log("new answer");
+        });
+        
+        socketRef?.current?.on(SOCKET_EVTS.QUIZ.TRANSITION, () => {
+            console.log("transition");
+        });
+
+        //#endregion
+
         return () => {
             socketRef?.current?.disconnect();
         };
@@ -68,7 +90,22 @@ function UseRoom(socketRef, roomId, roomPlayer){
         socketRef?.current?.emit(SOCKET_EVTS.PLAYING);
     };
 
-    return {players, showScore, showingScore, play, gameStarted};
+    const answer = () => {
+        if(roomPlayer.estAdmin) return;
+        socketRef?.current?.emit(SOCKET_EVTS.QUIZ.NEW_ANSWER);
+        setUserAnswered(true);
+    };
+
+    return {
+        players, 
+        showScore, showingScore, 
+        play, 
+        gameStarted,
+        answer,
+        userAnswered, setUserAnswered,
+        question,
+        possibleAnswers,
+    };
 }
 
 export default UseRoom;

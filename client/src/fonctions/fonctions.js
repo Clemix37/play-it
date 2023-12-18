@@ -5,6 +5,11 @@ const SOCKET_EVTS = {
     SOCKET_SERVER_URL: "http://localhost:4000",
     SHOWING_SCORE: "showingScore",
     PLAYING: "playing",
+    QUIZ: {
+      NEW_QUESTION: "newQuestion",
+      NEW_ANSWER: "newAnswer",
+      TRANSITION: "transition",
+    },
 };
 
 const getApi = (controller = null, lien) => {

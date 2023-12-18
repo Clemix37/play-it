@@ -59,6 +59,11 @@ const SOCKET_EVTS = {
     SOCKET_SERVER_URL: "http://localhost:4000",
     SHOWING_SCORE: "showingScore",
     PLAYING: "playing",
+    QUIZ: {
+      NEW_QUESTION: "newQuestion",
+      NEW_ANSWER: "newAnswer",
+      TRANSITION: "transition",
+    },
 };
 io.on('connection', async (socket) => {
     //console.log(socket);
@@ -81,7 +86,17 @@ io.on('connection', async (socket) => {
     });
 
     socket.on(SOCKET_EVTS.PLAYING, (data) => {
+      const question = "How ? Yooooo";
+      const answers = [{
+        text: "heyy",
+        correct: true,
+      },
+      {
+        text: "allo",
+        correct: false,
+      }];
       io.in(roomId).emit(SOCKET_EVTS.PLAYING, data);
+      io.in(roomId).emit(SOCKET_EVTS.QUIZ.NEW_QUESTION, { ...data, question, answers });
     });
   
     // Leave the room if the user closes the socket
